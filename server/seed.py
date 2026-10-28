@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-#!/usr/bin/env python3
 from datetime import date
 from app import app
 from models import db, Exercise, Workout, WorkoutExercises
@@ -21,5 +20,3 @@ with app.app_context():
     db.session.commit()
     
     print("Database seeded successfully!")
-
-

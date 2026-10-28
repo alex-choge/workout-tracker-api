@@ -13,12 +13,13 @@ class Exercise(db.Model):
     equipment_needed = db.Column(db.Boolean, default=False)
 
     workout_exercises = db.relationship('WorkoutExercises', back_populates='exercise', cascade='all, delete-orphan')
-    workouts = db.relationship('Workout', secondary='workout_exercises', back_populates='exercises')
+    workouts = db.relationship('Workout', secondary='workout_exercises', back_populates='exercises', overlaps="workout_exercises")
 
     @validates('name')
     def validate_name(self, key, name):
         assert name, "Name cannot be empty"
         return name
+
 
 class Workout(db.Model):
     __tablename__ = 'workouts'
@@ -28,8 +29,8 @@ class Workout(db.Model):
     duration_minutes = db.Column(db.Integer, nullable=False)
     notes = db.Column(db.Text)
 
-    workout_exercises = db.relationship('WorkoutExercises', back_populates='workout', cascade='all, delete-orphan')
-    exercises = db.relationship('Exercise', secondary='workout_exercises', back_populates='workouts')
+    workout_exercises = db.relationship('WorkoutExercises', back_populates='workout', cascade='all, delete-orphan', overlaps="exercises")
+    exercises = db.relationship('Exercise', secondary='workout_exercises', back_populates='workouts', overlaps="workout_exercises")
 
     __table_args__ = (db.CheckConstraint('duration_minutes > 0', name='check_duration'),)
 
@@ -37,6 +38,7 @@ class Workout(db.Model):
     def validate_duration(self, key, duration):
         assert duration > 0, "Duration must be greater than 0"
         return duration
+
 
 class WorkoutExercises(db.Model):
     __tablename__ = 'workout_exercises'
@@ -48,8 +50,8 @@ class WorkoutExercises(db.Model):
     sets = db.Column(db.Integer, nullable=False)
     duration_seconds = db.Column(db.Integer, nullable=False)
 
-    workout = db.relationship('Workout', back_populates='workout_exercises')
-    exercise = db.relationship('Exercise', back_populates='workout_exercises')
+    workout = db.relationship('Workout', back_populates='workout_exercises', overlaps="exercises,workouts")
+    exercise = db.relationship('Exercise', back_populates='workout_exercises', overlaps="exercises,workouts")
 
     __table_args__ = (
         db.CheckConstraint('reps >= 0', name='check_reps'),

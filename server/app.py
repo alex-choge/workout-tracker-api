@@ -1,14 +1,23 @@
+import os
 from flask import Flask, request, jsonify
 from flask_migrate import Migrate
 from models import db, Exercise, Workout, WorkoutExercises
 from schemas import exercises_schema, exercise_schema, workouts_schema, workout_schema, workout_exercise_schema
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+
+# Absolute path configuration for SQLite
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'app.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-migrate = Migrate(app, db)
+# Initialize app components only once
 db.init_app(app)
+migrate = Migrate(app, db)
+
+@app.route('/')
+def home():
+    return "Welcome to the Workout Tracker API!"
 
 @app.route('/workouts', methods=['GET', 'POST'])
 def handle_workouts():
